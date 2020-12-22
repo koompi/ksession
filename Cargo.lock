@@ -21,10 +21,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "autostart"
-version = "0.1.0"
-
-[[package]]
 name = "bitflags"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -44,10 +40,6 @@ dependencies = [
  "unicode-width",
  "vec_map",
 ]
-
-[[package]]
-name = "config"
-version = "0.1.0"
 
 [[package]]
 name = "console"
@@ -90,22 +82,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "k-config-session"
-version = "0.1.0"
-
-[[package]]
-name = "k-leave"
-version = "0.1.0"
-
-[[package]]
-name = "k-session"
-version = "0.1.0"
-
-[[package]]
 name = "ksession"
 version = "0.1.0"
 dependencies = [
  "console",
+ "lde_config_session",
+ "lde_leave",
+ "lde_session",
  "structopt",
 ]
 
@@ -114,6 +97,18 @@ name = "lazy_static"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
+
+[[package]]
+name = "lde_config_session"
+version = "0.1.0"
+
+[[package]]
+name = "lde_leave"
+version = "0.1.0"
+
+[[package]]
+name = "lde_session"
+version = "0.1.0"
 
 [[package]]
 name = "libc"

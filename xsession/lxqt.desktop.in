@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Exec=startlxqt
+TryExec=lxqt-session
+DesktopNames=LXQt
+
+#TRANSLATIONS_DIR=translations
