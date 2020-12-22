@@ -105,6 +105,10 @@ version = "0.1.0"
 [[package]]
 name = "lde_leave"
 version = "0.1.0"
+dependencies = [
+ "console",
+ "structopt",
+]
 
 [[package]]
 name = "lde_session"
