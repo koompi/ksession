@@ -8,4 +8,5 @@ edition = "2018"
 
 [dependencies]
 structopt = "0.3"
-console = "0.13"
+dbus = "0.9"
+iced = "0.2"

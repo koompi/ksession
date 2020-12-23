@@ -1,36 +1,21 @@
-use structopt::StructOpt;
+mod backend;
+mod cli;
+mod gui;
 
-/// Easily triggering leave session actions: logout, reboot, shutdown, hibernate, and lock screen
-#[derive(StructOpt, Debug)]
-#[structopt(name = "LDE Leave")]
-struct LeaveOpt {
-
-    /// Logout.
-    #[structopt(long)]
-    logout: bool,
-
-    /// Lockscreen.
-    #[structopt(long)]
-    lockscreen: bool,
-
-    /// Suspend.
-    #[structopt(long)]
-    suspend: bool,
-
-    /// Hibernate.
-    #[structopt(long)]
-    hibernate: bool,
-
-    /// Shutdown.
-    #[structopt(long)]
-    shutdown: bool,
-
-    /// Reboot.
-    #[structopt(long)]
-    reboot: bool,
-}
+use cli::{get_opts, validate_opts_or_exit};
+use backend::LdePower;
 
 fn main() {
-    let opt = LeaveOpt::from_args();
-    println!("{:#?}", opt);
+    // #[cfg(debug_assertions)]
+    // let is_debug = true;
+    // #[cfg(not(debug_assertions))]
+    // let is_debug = false;
+
+    let power_manager = LdePower::new();
+    let opts_result = get_opts();
+    let flag = validate_opts_or_exit(opts_result, power_manager);
+
+    if flag {
+        
+    }
 }   
