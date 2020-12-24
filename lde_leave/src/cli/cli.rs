@@ -41,50 +41,58 @@ pub fn get_opts() -> Result<LeaveOpts, clap::Error> {
 
 pub fn validate_opts_or_exit(
     opts_result: Result<LeaveOpts, clap::Error>,
-    power_manager: LdePower,
+    power_manager: &LdePower,
 ) -> bool {
     let mut flag = true;
 
     match opts_result {
         Ok(opt) => {
-            if opt.switchuser {
-                match power_manager.doAction(Action::PowerSwitchUser) {
-                    Ok(_) => flag = false,
-                    Err(err) => print_dbus_msg(err)
-                }
-            }
-        
             if opt.logout {
-                match power_manager.doAction(Action::PowerLogout) {
-                    Ok(_) => flag = false,
+                match power_manager.do_action(Action::PowerLogout) {
+                    Ok(res) => {
+                        flag = false;
+                        println!("Logout: {}", res);
+                    }
                     Err(err) => print_dbus_msg(err)
                 }
             }
         
             if opt.suspend {
-                match power_manager.doAction(Action::PowerSuspend) {
-                    Ok(_) => flag = false,
+                match power_manager.do_action(Action::PowerSuspend) {
+                    Ok(res) => {
+                        flag = false;
+                        println!("Suspend: {}", res);
+                    }
                     Err(err) => print_dbus_msg(err)
                 }
             }
         
             if opt.hibernate {
-                match power_manager.doAction(Action::PowerHibernate) {
-                    Ok(_) => flag = false,
+                match power_manager.do_action(Action::PowerHibernate) {
+                    Ok(res) => {
+                        flag = false;
+                        println!("Hibernate: {}", res);
+                    }
                     Err(err) => print_dbus_msg(err)
                 }
             }
         
             if opt.shutdown {
-                match power_manager.doAction(Action::PowerShutdown) {
-                    Ok(_) => flag = false,
+                match power_manager.do_action(Action::PowerShutdown) {
+                    Ok(res) => {
+                        flag = false;
+                        println!("Shut down: {}", res);
+                    }
                     Err(err) => print_dbus_msg(err)
                 }
             }
         
             if opt.reboot {
-                match power_manager.doAction(Action::PowerReboot) {
-                    Ok(_) => flag = false,
+                match power_manager.do_action(Action::PowerReboot) {
+                    Ok(res) => {
+                        flag = false;
+                        println!("Reboot: {}", res);
+                    }
                     Err(err) => print_dbus_msg(err)
                 }
             }
