@@ -44,40 +44,36 @@ pub fn validate_opts_or_exit(
     match opts_result {
         Ok(opt) => {
             if opt.logout {
-                match power_manager.do_action(Action::PowerLogout) {
-                    Ok(res) => println!("Logout: {}", res),
-                    Err(err) => print_dbus_msg(err)
+                if let Err(err) = power_manager.do_action(Action::PowerLogout) {
+                    print_dbus_msg(err);
                 }
                 flag = false;
             }
         
             if opt.suspend {
-                match power_manager.do_action(Action::PowerSuspend) {
-                    Ok(res) => println!("Suspend: {}", res),
-                    Err(err) => print_dbus_msg(err)
+                if let Err(err) = power_manager.do_action(Action::PowerSuspend) {
+                    print_dbus_msg(err);
                 }
                 flag = false;
             }
         
             if opt.hibernate {
-                match power_manager.do_action(Action::PowerHibernate) {
-                    Ok(res) => println!("Hibernate: {}", res),
-                    Err(err) => print_dbus_msg(err)
+                if let Err(err) = power_manager.do_action(Action::PowerHibernate) {
+                    print_dbus_msg(err);
                 }
                 flag = false;
             }
         
             if opt.shutdown {
-                match power_manager.do_action(Action::PowerShutdown) {
-                    Ok(res) => println!("Shutdown: {}", res),
-                    Err(err) => print_dbus_msg(err)
+                if let Err(err) = power_manager.do_action(Action::PowerShutdown) {
+                    print_dbus_msg(err);
                 }
+                flag = false;
             }
         
             if opt.reboot {
-                match power_manager.do_action(Action::PowerReboot) {
-                    Ok(res) => println!("Reboot: {}", res),
-                    Err(err) => print_dbus_msg(err)
+                if let Err(err) = power_manager.do_action(Action::PowerReboot) {
+                    print_dbus_msg(err);
                 }
                 flag = false;
             }

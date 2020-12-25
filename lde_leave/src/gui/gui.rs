@@ -41,7 +41,7 @@ impl LdeLeave {
             ..Settings::default()
         };
 
-        LdeLeave::run(settings).expect("running LDE Leave GUI");
+        LdeLeave::run(settings).expect("running LDE Session Leave GUI");
     }
 }
 
@@ -74,7 +74,7 @@ impl Application for LdeLeave {
     }
 
     fn title(&self) -> String { 
-        String::from("LDE Leave")   
+        String::from("LDE Session Leave")   
     }
 
     fn subscription(&self) -> Subscription<Message> {
