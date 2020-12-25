@@ -1,9 +1,14 @@
 [package]
 name = "lde_leave"
 version = "0.1.0"
-authors = ["cambodiacoder <maveasnalearntosolve@gmail>"]
+authors = ["Ma veasna <maveasnalearntosolve@gmail>", "Hang leang <hangleang127@gmail>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+structopt = "0.3"
+dbus = "0.9"
+iced = { version = "0.2", features = ["debug", "svg", "tokio"] }
+num-derive = "0.3"
+num-traits = "0.2"
