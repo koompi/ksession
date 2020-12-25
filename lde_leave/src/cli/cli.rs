@@ -6,10 +6,6 @@ use crate::backend::{Action, LdePower, print_dbus_msg};
 #[derive(StructOpt, Debug)]
 #[structopt(name = "LDE Leave")]
 pub struct LeaveOpts {
-    /// Switch User.
-    #[structopt(long)]
-    switchuser: bool,
-
     /// Logout.
     #[structopt(long)]
     logout: bool,
@@ -49,52 +45,41 @@ pub fn validate_opts_or_exit(
         Ok(opt) => {
             if opt.logout {
                 match power_manager.do_action(Action::PowerLogout) {
-                    Ok(res) => {
-                        flag = false;
-                        println!("Logout: {}", res);
-                    }
+                    Ok(res) => println!("Logout: {}", res),
                     Err(err) => print_dbus_msg(err)
                 }
+                flag = false;
             }
         
             if opt.suspend {
                 match power_manager.do_action(Action::PowerSuspend) {
-                    Ok(res) => {
-                        flag = false;
-                        println!("Suspend: {}", res);
-                    }
+                    Ok(res) => println!("Suspend: {}", res),
                     Err(err) => print_dbus_msg(err)
                 }
+                flag = false;
             }
         
             if opt.hibernate {
                 match power_manager.do_action(Action::PowerHibernate) {
-                    Ok(res) => {
-                        flag = false;
-                        println!("Hibernate: {}", res);
-                    }
+                    Ok(res) => println!("Hibernate: {}", res),
                     Err(err) => print_dbus_msg(err)
                 }
+                flag = false;
             }
         
             if opt.shutdown {
                 match power_manager.do_action(Action::PowerShutdown) {
-                    Ok(res) => {
-                        flag = false;
-                        println!("Shut down: {}", res);
-                    }
+                    Ok(res) => println!("Shutdown: {}", res),
                     Err(err) => print_dbus_msg(err)
                 }
             }
         
             if opt.reboot {
                 match power_manager.do_action(Action::PowerReboot) {
-                    Ok(res) => {
-                        flag = false;
-                        println!("Reboot: {}", res);
-                    }
+                    Ok(res) => println!("Reboot: {}", res),
                     Err(err) => print_dbus_msg(err)
                 }
+                flag = false;
             }
             flag
         },

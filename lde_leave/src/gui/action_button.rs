@@ -1,6 +1,7 @@
 use iced::{
     button, Button, Column, Element, Text, Length, Align, Container, Svg, 
 };
+use super::styles::CustomButton;
 
 #[derive(Debug, Clone)]
 pub struct ActionButton {
@@ -31,7 +32,7 @@ impl ActionButton {
         }
     }
 
-    pub fn view(&mut self) -> Element<ActionMsg> {
+    pub fn view(&mut self, is_selected: bool) -> Element<ActionMsg> {
         let icon = Svg::from_path(&self.icon).width(Length::Fill).height(Length::Fill);
         let name = Text::new(self.name);
         let action_con = Container::new(
@@ -40,7 +41,7 @@ impl ActionButton {
             .push(name)
         ).width(Length::Fill).height(Length::Fill).center_x().center_y();
         
-        Button::new(&mut self.btn_state, action_con).width(Length::Fill).height(Length::Fill).on_press(ActionMsg::ActionClicked).into()
+        Button::new(&mut self.btn_state, action_con).width(Length::Fill).height(Length::Fill).padding(5).on_press(ActionMsg::ActionClicked).style(if is_selected {CustomButton::SelectedCard} else {CustomButton::Card}).into()
     }
 }
 

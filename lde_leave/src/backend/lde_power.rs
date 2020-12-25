@@ -1,7 +1,7 @@
 use dbus::Error;
 
 use super::lde_power_provider::{
-    LdePowerProvider, InitSystemProvider, LdeProvider
+    LdePowerProvider, InitSystemProvider, LdeProvider, UPowerProvider, LdeSessionProvider,
 };
 
 /// Power can perform next actions:
@@ -12,8 +12,7 @@ pub enum Action {
     PowerReboot,    
     PowerShutdown,  
     PowerSuspend,   
-    PowerMonitorOff, 
-    PowerShowLeaveDialog,
+    // PowerMonitorOff, 
 }
 
 pub struct LdePower {
@@ -30,8 +29,10 @@ impl LdePower {
     pub fn new() -> Self {
         Self {
             providers: vec![
+                Box::new(UPowerProvider),
                 Box::new(InitSystemProvider),
-                Box::new(LdeProvider)
+                // Box::new(LdeProvider),
+                Box::new(LdeSessionProvider)
             ]
         }
     }
@@ -64,9 +65,7 @@ impl LdePower {
 
     pub fn can_suspend(&self) -> Result<bool, Error> { self.can_action(Action::PowerSuspend) }
 
-    pub fn can_monitor_off(&self) -> Result<bool, Error> { self.can_action(Action::PowerMonitorOff) }
-
-    pub fn can_show_leave_dialog(&self) -> Result<bool, Error> { self.can_action(Action::PowerShowLeaveDialog) }
+    // pub fn can_monitor_off(&self) -> Result<bool, Error> { self.can_action(Action::PowerMonitorOff) }
 
     pub fn logout(&self) -> Result<bool, Error> { self.do_action(Action::PowerLogout) }
 
@@ -78,7 +77,5 @@ impl LdePower {
 
     pub fn suspend(&self) -> Result<bool, Error> { self.do_action(Action::PowerSuspend) }
 
-    pub fn monitor_off(&self) -> Result<bool, Error> { self.do_action(Action::PowerMonitorOff) }
-
-    pub fn show_leave_off(&self) -> Result<bool, Error> { self.do_action(Action::PowerShowLeaveDialog) }
+    // pub fn monitor_off(&self) -> Result<bool, Error> { self.do_action(Action::PowerMonitorOff) }
 }

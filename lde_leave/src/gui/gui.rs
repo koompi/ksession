@@ -1,5 +1,7 @@
-use super::action_button::{ActionButton, ActionMsg, ActionType};
-use super::constants::IMAGE_PATH;
+use super::{
+    action_button::{ActionButton, ActionMsg, ActionType}, constants::IMAGE_PATH, styles::CustomButton,
+
+};
 use crate::backend::LdePower; 
 use num_traits::FromPrimitive;
 use std::path::PathBuf;
@@ -7,7 +9,7 @@ use std::ops::SubAssign;
 use std::time::{Duration, Instant};
 use iced::{
     button, Align, Application, Button, Column, Command, Container, Element, Length, Row, Settings, 
-    Subscription, Text, time, Svg, window, Color, HorizontalAlignment,
+    Subscription, Text, time, Svg, window, HorizontalAlignment,
 };
 
 pub struct LdeLeave {
@@ -138,33 +140,46 @@ impl Application for LdeLeave {
     }
 
     fn view(&mut self) -> Element<Message> { 
-        let user_profile = Svg::from_path(&self.userprofile).width(Length::Units(127)).width(Length::Units(127));
-        let user_name = Text::new(self.username);
+        let LdeLeave {
+            userprofile,
+            username,
+            action_buttons,
+            selected_action,
+            btn_ok_state,
+            btn_cancel_state,
+            shutdown_count_dur,
+            err_msg,
+            ..
+        } = self;
+
+        let user_profile = Svg::from_path(&userprofile).width(Length::Units(150)).width(Length::Units(150));
+
+        let user_name = Text::new(*username);
         let user_con = Container::new(
             Column::new().spacing(20).align_items(Align::Center)
             .push(user_profile)
             .push(user_name)
-        );
+        ).padding(5);
 
-        let actions_row = self.action_buttons.iter_mut().enumerate().fold(Row::new().spacing(30), |row, (idx, action_button)| {
+        let actions_row = action_buttons.iter_mut().enumerate().fold(Row::new().spacing(30), |row, (idx, action_button)| {
             row.push(
                 Container::new(
-                    action_button.view().map(move |msg| Message::OnActionClicked(idx, msg))
-                ).width(Length::Units(75)).height(Length::Units(75)).center_x().center_y()
+                    action_button.view(*selected_action == idx).map(move |msg| Message::OnActionClicked(idx, msg))
+                ).width(Length::Units(85)).height(Length::Units(85)).center_x().center_y()
             )
         });
 
-        let state_text = if let Some(err_msg) = self.err_msg.clone() {
+        let state_text = if let Some(err_msg) = err_msg.clone() {
             err_msg
-        } else if self.shutdown_count_dur != Duration::from_secs(0) {
-            format!("Shuting down in {} seconds", self.shutdown_count_dur.as_secs())
+        } else if *shutdown_count_dur != Duration::from_secs(0) {
+            format!("Shuting down in {} seconds", shutdown_count_dur.as_secs())
         } else {
             String::new()
         };
 
         let txt_state = Text::new(state_text).size(14);
-        let btn_ok = Button::new(&mut self.btn_ok_state, Text::new("Ok").horizontal_alignment(HorizontalAlignment::Center)).width(Length::Units(100)).on_press(Message::OnOkayClicked);
-        let btn_cancel = Button::new(&mut self.btn_cancel_state, Text::new("Cancel").horizontal_alignment(HorizontalAlignment::Center)).width(Length::Units(100)).on_press(Message::OnCancelClicked);
+        let btn_ok = Button::new(btn_ok_state, Text::new("Ok").horizontal_alignment(HorizontalAlignment::Center)).width(Length::Units(100)).on_press(Message::OnOkayClicked).style(CustomButton::Default);
+        let btn_cancel = Button::new(btn_cancel_state, Text::new("Cancel").horizontal_alignment(HorizontalAlignment::Center)).width(Length::Units(100)).on_press(Message::OnCancelClicked).style(CustomButton::Default);
         let btn_group = Row::new().spacing(10).align_items(Align::Center)
             .push(btn_ok)
             .push(btn_cancel);
