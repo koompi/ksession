@@ -1,3 +1,8 @@
+mod cli;
+mod gui;
+
+use gui::LdeSessionManager;
+
 fn main() {
-    println!("Hello, world!");
+    LdeSessionManager::init()
 }
