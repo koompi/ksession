@@ -3,7 +3,8 @@ use super::tab::{Tab, TabMsg};
 use super::constants::{IMAGE_PATH};
 use super::styles::{CustomButton, CustomContainer};
 use iced::{
-   button, executor, scrollable, Application, Button, Command, Container, Element, Length, Row, Scrollable, Settings, Text, Column,
+   button, executor, scrollable, Application, Button, Command, Container, Element, Length, Row, 
+   Scrollable, Settings, Text, Column, 
 };
 
 pub struct LdeSessionManager {
@@ -39,7 +40,7 @@ impl Default for LdeSessionManager {
       let tabs = vec![
          Tab::new(format!("{}/general.svg", IMAGE_PATH, ), "General Settings"),
          Tab::new(format!("{}/default_app.svg", IMAGE_PATH, ), "Default Applications"),
-         Tab::new(format!("{}/auto_start.svg", IMAGE_PATH, ), "Auto-start Applications"),
+         Tab::new(format!("{}/startup.svg", IMAGE_PATH, ), "Auto-start Applications"),
          Tab::new(format!("{}/env.svg", IMAGE_PATH, ), "Environment Variable"),
       ];
 
@@ -92,6 +93,7 @@ impl Application for LdeSessionManager {
             let current_tab = self.selected_tab;
             *self = Self::default();
             self.selected_tab = current_tab;
+            self.pages.set_current(self.selected_tab);
          }
       }
 
@@ -108,27 +110,27 @@ impl Application for LdeSessionManager {
       } = self;
 
       let sidebar = tabs.iter_mut().enumerate().fold(
-         Scrollable::new(sidebar_scroll).spacing(10), |sidebar, (idx, tab)| {
+         Scrollable::new(sidebar_scroll).spacing(10).padding(10).scroller_width(5).scrollbar_width(7), |sidebar, (idx, tab)| {
             sidebar.push(
-               Container::new(tab.view(idx == *selected_tab).map(move |msg| Self::Message::TabMessage(idx, msg)),).width(Length::Units(85)).height(Length::Units(85))
+               Container::new(tab.view(idx == *selected_tab).map(move |msg| Self::Message::TabMessage(idx, msg)),).width(Length::Units(90)).height(Length::Units(90))
             )
          },
       );
-      let sidebar_sec = Container::new(sidebar).width(Length::Units(127)).center_x().style(CustomContainer::ForegroundWhite);
+      let sidebar_sec = Container::new(sidebar).width(Length::Units(110)).height(Length::Fill).center_x().style(CustomContainer::Background);
 
       let content = pages.view().map(Self::Message::PagesMessage);
-      let content_sec = Container::new(content).width(Length::Fill).style(CustomContainer::Background);
+      let content_sec = Container::new(content).width(Length::Fill).height(Length::Fill).padding(10).style(CustomContainer::Background);
 
-      let btn_default = Button::new(btn_default_state, Text::new("  Default  ")).on_press(Self::Message::DefaultClicked).style(CustomButton::Default);
+      let btn_default = Button::new(btn_default_state, Text::new("   Default   ")).on_press(Self::Message::DefaultClicked).style(CustomButton::Default);
 
       Container::new(
-         Column::new().spacing(10)
+         Column::new().spacing(15)
          .push(
-            Row::new().spacing(27)
+            Row::new().spacing(27).height(Length::Fill)
             .push(sidebar_sec)
             .push(content_sec)
          )
          .push(btn_default)
-      ).into()
+      ).padding(20).into()
    }
 }

@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 iced = { version = "0.2", features = ["debug", "svg", "tokio"] }
+iced_style = "0.2"

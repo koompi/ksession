@@ -1,5 +1,5 @@
 use iced::{
-    button, Button, Column, Element, Text, Length, Align, Container, Svg, 
+    button, Button, Column, Element, Text, Length, Align, Container, Svg, HorizontalAlignment
 };
 use super::styles::CustomButton;
 
@@ -32,13 +32,13 @@ impl Tab {
 
     pub fn view(&mut self, is_selected: bool) -> Element<TabMsg> {
         let icon = Svg::from_path(&self.icon).width(Length::Fill).height(Length::Fill);
-        let name = Text::new(self.name);
+        let name = Text::new(self.name).horizontal_alignment(HorizontalAlignment::Center);
         let action_con = Container::new(
             Column::new().spacing(5).align_items(Align::Center)
             .push(icon)
             .push(name)
         ).width(Length::Fill).height(Length::Fill).center_x().center_y();
         
-        Button::new(&mut self.btn_state, action_con).width(Length::Fill).height(Length::Fill).padding(5).on_press(TabMsg::TabClicked).style(if is_selected {CustomButton::SelectedSidebar} else {CustomButton::Sidebar}).into()
+        Button::new(&mut self.btn_state, action_con).width(Length::Fill).height(Length::Fill).padding(10).on_press(TabMsg::TabClicked).style(if is_selected {CustomButton::SelectedSidebar} else {CustomButton::Sidebar}).into()
     }
 }
