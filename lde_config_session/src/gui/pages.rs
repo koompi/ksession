@@ -109,7 +109,7 @@ impl Page {
       match self {
          General { .. } => "General",
          DefaultApp { .. } => "Default Applications",
-         AutoStart { .. } => "Auto-start Applications",
+         AutoStart { .. } => "Autostart Applications",
          Env { .. } => "Environment Variable",
       }
    }

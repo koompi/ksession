@@ -15,6 +15,8 @@ pub enum CustomButton {
     Default,
     Sidebar,
     SelectedSidebar,
+    Text,
+    SelectedText,
 }
 
 impl button::StyleSheet for CustomButton {
@@ -30,7 +32,8 @@ impl button::StyleSheet for CustomButton {
                 },
                 CustomButton::Sidebar => Color::TRANSPARENT,
                 CustomButton::Default => Color::WHITE,
-                _ => Color::WHITE,
+                CustomButton::SelectedText => BACKGROUND,
+                _ => Color::TRANSPARENT,
             })),
             border_radius: match self {
                 CustomButton::Sidebar | CustomButton::SelectedSidebar => 7.0,
@@ -52,6 +55,7 @@ impl button::StyleSheet for CustomButton {
             background: match self {
                 CustomButton::Sidebar => Color { a: 0.3, ..HOVERED }.into(),
                 CustomButton::Default => BACKGROUND.into(),
+                CustomButton::Text => BACKGROUND.into(),
                 _ => active.background
             },
             ..active

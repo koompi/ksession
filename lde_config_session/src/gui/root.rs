@@ -3,7 +3,7 @@ use super::tab::{Tab, TabMsg};
 use super::constants::{IMAGE_PATH};
 use super::styles::{CustomButton, CustomContainer};
 use iced::{
-   button, executor, scrollable, Application, Button, Command, Container, Element, Length, Row, 
+   button, executor, scrollable, window, Application, Button, Command, Container, Element, Length, Row, 
    Scrollable, Settings, Text, Column, 
 };
 
@@ -25,11 +25,11 @@ impl LdeSessionManager {
 
       LdeSessionManager::run(Settings {
          default_text_size: 13,
-         // window: window::Settings {
-         //    min_size: Some((750, 700)),
-         //    icon: Some(window::Icon::from_rgba(rgba, width, height).expect("Failed to open icon")),
-         //    ..window::Settings::default()
-         // },
+         window: window::Settings {
+            min_size: Some((650, 500)),
+            // icon: Some(window::Icon::from_rgba(rgba, width, height).expect("Failed to open icon")),
+            ..window::Settings::default()
+         },
          ..Settings::default()
       }).expect("running LDE Session Manager GUI");
    }
@@ -40,7 +40,7 @@ impl Default for LdeSessionManager {
       let tabs = vec![
          Tab::new(format!("{}/general.svg", IMAGE_PATH, ), "General Settings"),
          Tab::new(format!("{}/default_app.svg", IMAGE_PATH, ), "Default Applications"),
-         Tab::new(format!("{}/startup.svg", IMAGE_PATH, ), "Auto-start Applications"),
+         Tab::new(format!("{}/startup.svg", IMAGE_PATH, ), "Autostart Applications"),
          Tab::new(format!("{}/env.svg", IMAGE_PATH, ), "Environment Variable"),
       ];
 
