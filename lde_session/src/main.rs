@@ -1,6 +1,6 @@
 mod cli;
-mod dbus;
 mod modmg;
+mod sm_xdg;
 mod wmmanager;
 use clap::{App, Arg};
 fn main() {
@@ -45,4 +45,8 @@ fn main() {
         }
         None => {}
     }
+    let mut data = modmg::ModuleManager::new();
+    data.set_window_manager("kwin_x11");
+    data.start_wm();
+    // data.start_process("lxqt-panel");
 }

@@ -15,4 +15,5 @@ clap = "2.33.3"
 dbus = "0.9.0"
 is_executable = "0.1.2"
 wmctrl = "*"
+xdg = "2.2.0"
 
