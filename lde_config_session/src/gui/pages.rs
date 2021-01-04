@@ -1,12 +1,12 @@
 mod general_page;
 mod default_app_page;
-mod auto_start_page;
-mod env_page;
+mod auto_start;
+mod env_advanced;
 
 use general_page::{GeneralPage, GeneralMsg};
 use default_app_page::{DefaultAppPage, DefaultAppMsg};
-use auto_start_page::{AutoStartPage, AutoStartMsg};
-use env_page::{EnvPage, EnvMsg};
+use auto_start::{AutoStartPage, AutoStartMsg};
+use env_advanced::{EnvPage, EnvMsg};
 use iced::{
    Element,
 };

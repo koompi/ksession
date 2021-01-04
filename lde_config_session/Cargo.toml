@@ -9,3 +9,8 @@ edition = "2018"
 [dependencies]
 iced = { version = "0.2", features = ["debug", "svg", "tokio"] }
 iced_style = "0.2"
+iced_custom_widget = { git="https://github.com/leang27/iced_custom_widget", branch="master" }
+serde = "1.0"
+serde_json = "1.0"
+xdg = "2.2"
+# native-dialog = "0.5.2"

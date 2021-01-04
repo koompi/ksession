@@ -1,5 +1,5 @@
 use iced::{
-    button, container, pick_list, checkbox, Background, Color, Vector,
+    button, container, pick_list, checkbox, text_input, Background, Color, Vector,
 };
 use iced_style::menu;
 
@@ -146,4 +146,49 @@ impl checkbox::StyleSheet for CustomCheckbox {
     fn hovered(&self, is_checked: bool) -> checkbox::Style {
         self.active(is_checked)
     }
+}
+pub enum CustomTextInput {
+    Default,
+}
+
+impl text_input::StyleSheet for CustomTextInput {
+fn active(&self) -> text_input::Style {
+    text_input::Style {
+        background: Background::Color(match self {
+            Self::Default => Color::WHITE,
+        }),
+        border_radius: 12.0,
+        border_width: 0.0,
+        border_color: match self {
+            Self::Default => ACCENT,
+        },
+    }
+}
+
+fn focused(&self) -> text_input::Style {
+    text_input::Style {
+        border_width: 1.0,
+        ..self.active()
+    }
+}
+
+fn placeholder_color(&self) -> Color {
+    match self {
+        Self::Default => HOVERED,
+    }
+}
+
+fn value_color(&self) -> Color {
+    self.active().border_color
+}
+
+fn selection_color(&self) -> Color {
+    match self {
+        Self::Default => HOVERED,
+    }
+}
+
+fn hovered(&self) -> text_input::Style {
+    self.focused()
+}
 }
