@@ -9,7 +9,7 @@ use tokio::process::Command;
 #[async_trait]
 pub trait LDEModuleManager {
     fn set_window_manager(&mut self, wm_name: &str);
-    fn start_process(&self, proc_name: &str);
+    async fn start_process(&self, proc_name: &str);
     fn stop_process(&self, proc_name: &str);
     fn list_modlues(&mut self) -> Vec<String>;
     async fn startup(&mut self);
@@ -29,7 +29,9 @@ impl LDEModuleManager for ModuleManager {
     fn set_window_manager(&mut self, wm_name: &str) {
         self.window_manager = wm_name.to_string();
     }
-    fn start_process(&self, proc_name: &str) {}
+    async fn start_process(&self, proc_name: &str) {
+        LDEModule::new("system_settings").start();
+    }
     fn stop_process(&self, proc_name: &str) {}
     fn list_modlues(&mut self) -> Vec<String> {
         Vec::<String>::new()
@@ -51,17 +53,7 @@ impl ModuleManager {
             self.wm_started = true;
             return self;
         } else {
-            let mut child = Command::new(&self.window_manager)
-                .spawn()
-                .expect("Failed to start window manager");
-            tokio::spawn(async move {
-                let status = child
-                    .wait()
-                    .await
-                    .expect("child process encountered an error");
-
-                println!("child status was: {}", status);
-            });
+            LDEModule::new(self.window_manager.as_str()).start();
         }
         self
     }
@@ -89,22 +81,8 @@ impl ModuleManager {
             .section("Desktop Entry")
             .attr("Exec")
             .expect("Attribute doesn't exist");
-        println!(" Executable: {}", binary);
-        let mut child = Command::new(binary).spawn().expect("running");
-        tokio::spawn(async move {
-            let status = child
-                .wait()
-                .await
-                .expect("child process encountered an error");
-
-            println!("child status was: {}", status);
-        });
-        // match output.wait() {
-        //     Ok(data) => {
-        //         println!("Status: {:?}", data);
-        //     }
-        //     Err(e) => println!("Error: {}", e),
-        // }
+        println!("{}", binary);
+        LDEModule::new(binary).start();
         Ok(())
     }
     fn start_config_update(&mut self) {}
@@ -122,5 +100,39 @@ pub fn get_wm() -> String {
             .join("[]")
     } else {
         String::from("")
+    }
+}
+
+pub struct LDEModule<'l> {
+    is_terminated: bool,
+    // path: std::path::PathBuf,
+    filename: &'l str,
+}
+
+impl<'l> LDEModule<'l> {
+    pub fn new(module: &'l str) -> Self {
+        Self {
+            is_terminated: false,
+            filename: module,
+        }
+    }
+    pub fn start(&mut self) {
+        let mut cmd = Command::new(self.filename)
+            .args(["&"].iter())
+            .spawn()
+            .expect("File to run module");
+        tokio::spawn(async move {
+            match cmd.try_wait() {
+                Ok(data) => println!("output : {:?}", data),
+                Err(e) => println!("Error: {:?}", e),
+            }
+        });
+    }
+    pub fn terminate(&mut self) {
+        self.is_terminated = true;
+        std::process::exit(0x0100);
+    }
+    pub fn is_terminating(&self) -> bool {
+        self.is_terminated
     }
 }
