@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+#![allow(unused_variables)]
 use is_executable::IsExecutable;
 use std::env::var_os;
 use std::path::Path;
@@ -9,7 +11,7 @@ pub struct WinowManager {
 }
 pub type WinowManagerList = Vec<WinowManager>;
 
-pub fn getWMList(onlyAvailable: Option<bool>) -> Option<(WinowManagerList, ())> {
+pub fn get_wm_list(available: Option<bool>) -> Option<(WinowManagerList, ())> {
     None
 }
 pub fn find_program(name: &str) -> bool {
@@ -17,18 +19,16 @@ pub fn find_program(name: &str) -> bool {
     let path = Path::new(&abs_path);
     if path.is_executable() {
         true
-    } else {
-        if let Some(val) = var_os("PATH") {
-            let paths = val.to_str().unwrap().split(':');
-            for p in paths {
-                let file = String::from(format!("{}/{}", p, name));
-                if Path::new(&file).is_executable() {
-                    return true;
-                }
+    } else if let Some(val) = var_os("PATH") {
+        let paths = val.to_str().unwrap().split(':');
+        for p in paths {
+            let file = format!("{}/{}", p, name);
+            if Path::new(&file).is_executable() {
+                return true;
             }
-            false
-        } else {
-            false
         }
+        false
+    } else {
+        false
     }
 }
