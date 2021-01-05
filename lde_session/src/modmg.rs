@@ -1,17 +1,18 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
 use crate::sm_xdg::xdg_autostart::desktop_files;
+use async_trait::async_trait;
 use std::fs;
 use std::path::PathBuf;
-use std::process::Command;
 use std::process::ExitStatus;
-use tokio::task;
+use tokio::process::Command;
+#[async_trait]
 pub trait LDEModuleManager {
     fn set_window_manager(&mut self, wm_name: &str);
     fn start_process(&self, proc_name: &str);
     fn stop_process(&self, proc_name: &str);
     fn list_modlues(&mut self) -> Vec<String>;
-    fn startup(&mut self);
+    async fn startup(&mut self);
     fn logout(&self, can_exit: bool);
 }
 #[derive(Default)]
@@ -23,6 +24,7 @@ pub struct ModuleManager {
     // brief Window Manager command
     window_manager: String,
 }
+#[async_trait]
 impl LDEModuleManager for ModuleManager {
     fn set_window_manager(&mut self, wm_name: &str) {
         self.window_manager = wm_name.to_string();
@@ -34,8 +36,8 @@ impl LDEModuleManager for ModuleManager {
     fn list_modlues(&mut self) -> Vec<String> {
         Vec::<String>::new()
     }
-    fn startup(&mut self) {
-        self.start_wm();
+    async fn startup(&mut self) {
+        self.start_wm().await;
         self.start_autostart();
     }
     fn logout(&self, can_exit: bool) {}
@@ -47,7 +49,7 @@ impl ModuleManager {
             ..Default::default()
         }
     }
-    fn start_wm(&mut self) {
+    async fn start_wm(&mut self) {
         if !get_wm().is_empty() {
             self.wm_started = true;
         } else {

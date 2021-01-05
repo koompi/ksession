@@ -5,8 +5,6 @@ mod sm_xdg;
 mod wmmanager;
 use clap::{App, Arg};
 use modmg::{LDEModuleManager, ModuleManager};
-use std::thread::sleep;
-use tokio::task;
 #[tokio::main]
 async fn main() {
     loop {
@@ -49,7 +47,8 @@ async fn main() {
         }
         let mut mg = ModuleManager::new();
         mg.set_window_manager("kwin_x11");
-        mg.startup();
+        mg.startup().await;
+        println!("event looop");
         std::thread::park();
     }
 }
