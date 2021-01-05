@@ -5,9 +5,10 @@ mod sm_xdg;
 mod wmmanager;
 use clap::{App, Arg};
 use modmg::{LDEModuleManager, ModuleManager};
+use qt_core::QCoreApplication;
 #[tokio::main]
 async fn main() {
-    loop {
+    QCoreApplication::init(|app| unsafe {
         let matches = App::new("LDE SESSION")
             .version("1.0")
             .author("KOOMPI. koompi@gmail.com")
@@ -47,8 +48,7 @@ async fn main() {
         }
         let mut mg = ModuleManager::new();
         mg.set_window_manager("kwin_x11");
-        mg.startup().await;
-        println!("event looop");
-        std::thread::park();
-    }
+        mg.startup();
+        QCoreApplication::exec()
+    });
 }

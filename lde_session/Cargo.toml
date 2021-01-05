@@ -18,6 +18,7 @@ wmctrl = "*"
 xdg = "2.2.0"
 async-trait = "0.1.42"
 # toml = "0.5.8"
+qt_core="*"
 freedesktop_entry_parser = "1.1.1"
 tokio = { version = "1", features = ["full"] }
 
