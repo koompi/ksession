@@ -1,11 +1,8 @@
 use self::calloop::signals::{Signal, Signals};
 use self::calloop::{Dispatcher, EventLoop};
-use self::nix::sys::signal::{kill, SigSet};
-use self::nix::unistd::Pid;
 use std::env;
 use std::io;
 extern crate calloop;
-extern crate nix;
 // use calloop::{generic::Generic, EventLoop, Interest, Mode};
 use std::time::Duration;
 
@@ -42,23 +39,7 @@ pub fn run_loop() {
     //
     // The `&mut shared_data` is a mutable reference that will be forwarded to all
     // your callbacks, allowing them to share some state
-    let result = dbus::dbus_call(
-        "org.freedesktop.PowerManagement",
-        "/org/freedesktop/PowerManagement",
-        "CanSuspend",
-    );
-    match result {
-        Ok(data) => {
-            if data {
-                println!("Can suspend {}", data);
-            } else {
-                println!("Cannot suspend");
-            }
-        }
-        Err(e) => {
-            println!("Error: {}", e);
-        }
-    }
+
     let mut count = 0;
     event_loop
         .run(
@@ -69,13 +50,10 @@ pub fn run_loop() {
                  * Insert here the processing you need to do do between each waiting session
                  * like your drawing logic if you're doing a GUI app for example.
                  */
-                count += 1;
-                if count == 5 {
-                    std::process::exit(0);
-                } else {
-                    println!("Event loop");
-                    println!("{:?}", env::var("XDG_SESSION_ID"));
-                }
+
+                println!("Event loop");
+                println!("{:?}", env::var("XDG_SESSION_ID"));
+
                 // if env: {
                 //     println!("Event looop");
                 // } else {

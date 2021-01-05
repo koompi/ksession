@@ -5,6 +5,8 @@ mod sm_xdg;
 mod wmmanager;
 use clap::{App, Arg};
 use modmg::{LDEModuleManager, ModuleManager};
+use std::thread::sleep;
+use tokio::task;
 #[tokio::main]
 async fn main() {
     let matches = App::new("LDE SESSION")
@@ -35,7 +37,6 @@ async fn main() {
         )
         .get_matches();
     if let Some(val) = matches.value_of("find") {
-        println!("find program: {}", val);
         let status = if wmmanager::find_program(val) {
             println!("found program ");
             true
@@ -47,8 +48,6 @@ async fn main() {
     }
     let mut mg = ModuleManager::new();
     mg.set_window_manager("kwin_x11");
-    mg.startup().await;
-    mg.start_process("system_settings").await;
-    // mg.start_autostart().await;
-    // data.start_process("lxqt-panel");
+    mg.startup();
+    std::thread::park();
 }

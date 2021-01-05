@@ -1,18 +1,17 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
 use crate::sm_xdg::xdg_autostart::desktop_files;
-use async_trait::async_trait;
 use std::fs;
 use std::path::PathBuf;
-use std::process::{ExitStatus, Stdio};
-use tokio::process::Command;
-#[async_trait]
+use std::process::Command;
+use std::process::ExitStatus;
+use tokio::task;
 pub trait LDEModuleManager {
     fn set_window_manager(&mut self, wm_name: &str);
-    async fn start_process(&self, proc_name: &str);
+    fn start_process(&self, proc_name: &str);
     fn stop_process(&self, proc_name: &str);
     fn list_modlues(&mut self) -> Vec<String>;
-    async fn startup(&mut self);
+    fn startup(&mut self);
     fn logout(&self, can_exit: bool);
 }
 #[derive(Default)]
@@ -24,20 +23,20 @@ pub struct ModuleManager {
     // brief Window Manager command
     window_manager: String,
 }
-#[async_trait]
 impl LDEModuleManager for ModuleManager {
     fn set_window_manager(&mut self, wm_name: &str) {
         self.window_manager = wm_name.to_string();
     }
-    async fn start_process(&self, proc_name: &str) {
-        LDEModule::new("system_settings").start();
+    fn start_process(&self, proc_name: &str) {
+        LDEModule::new(proc_name).start();
     }
     fn stop_process(&self, proc_name: &str) {}
     fn list_modlues(&mut self) -> Vec<String> {
         Vec::<String>::new()
     }
-    async fn startup(&mut self) {
-        self.start_wm().await;
+    fn startup(&mut self) {
+        self.start_wm();
+        self.start_autostart();
     }
     fn logout(&self, can_exit: bool) {}
 }
@@ -48,26 +47,26 @@ impl ModuleManager {
             ..Default::default()
         }
     }
-    async fn start_wm(&mut self) -> &mut Self {
+    fn start_wm(&mut self) {
         if !get_wm().is_empty() {
             self.wm_started = true;
-            return self;
         } else {
             LDEModule::new(self.window_manager.as_str()).start();
+            std::thread::sleep(std::time::Duration::from_millis(100));
         }
-        self
     }
-    pub async fn wm_started(&mut self) {
+    pub fn wm_started(&mut self) -> bool {
         println!("Window manager started");
         println!("window manager: {}", get_wm());
+        self.wm_started
     }
-    pub async fn start_autostart(&mut self) -> &mut Self {
+    pub fn start_autostart(&mut self) -> &mut Self {
         let list_files = desktop_files();
-
         for file in list_files {
             let content = fs::read_to_string(&file).expect("Something wrong reading file");
-            if content.contains("X-LXQt-Module") {
-                match self.start_app_process(file).await {
+            if content.contains("X-LDE-Module") {
+                println!("{:?}", file);
+                match self.start_app_process(file) {
                     Ok(()) => println!("run fine"),
                     Err(e) => println!("Error: {}", e),
                 }
@@ -75,7 +74,7 @@ impl ModuleManager {
         }
         self
     }
-    async fn start_app_process(&mut self, file: PathBuf) -> Result<(), Box<dyn std::error::Error>> {
+    fn start_app_process(&mut self, file: PathBuf) -> Result<(), Box<dyn std::error::Error>> {
         let entry = freedesktop_entry_parser::parse_entry(file).unwrap();
         let binary = entry
             .section("Desktop Entry")
@@ -121,12 +120,10 @@ impl<'l> LDEModule<'l> {
             .args(["&"].iter())
             .spawn()
             .expect("File to run module");
-        tokio::spawn(async move {
-            match cmd.try_wait() {
-                Ok(data) => println!("output : {:?}", data),
-                Err(e) => println!("Error: {:?}", e),
-            }
-        });
+        match cmd.try_wait() {
+            Ok(data) => println!("output : {:?}", data),
+            Err(e) => println!("Error: {:?}", e),
+        }
     }
     pub fn terminate(&mut self) {
         self.is_terminated = true;
