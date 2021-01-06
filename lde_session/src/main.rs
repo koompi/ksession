@@ -36,6 +36,7 @@ async fn main() {
             )
             .get_matches();
         if let Some(val) = matches.value_of("find") {
+            println!("find program: {}", val);
             let status = if wmmanager::find_program(val) {
                 println!("found program ");
                 true
@@ -45,10 +46,13 @@ async fn main() {
             };
             println!("Status: {}", status);
         }
-        println!("run forever");
         let mut mg = ModuleManager::new();
         mg.set_window_manager("kwin_x11");
-        mg.startup();
+        mg.startup().await;
+        std::thread::sleep(std::time::Duration::from_millis(100));
+        mg.start_autostart().await;
         std::thread::park();
+        // mg.wm_started().await;
     }
+    // data.start_process("lxqt-panel");
 }
