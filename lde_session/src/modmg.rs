@@ -37,7 +37,7 @@ impl LDEModuleManager for ModuleManager {
     }
     fn startup(&mut self) {
         self.start_wm();
-        self.start_autostart();
+        // self.start_autostart();
     }
     fn logout(&self, can_exit: bool) {}
 }
