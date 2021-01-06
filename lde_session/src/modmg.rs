@@ -3,8 +3,8 @@
 use crate::sm_xdg::xdg_autostart::desktop_files;
 use std::fs;
 use std::path::PathBuf;
+use std::process::Command;
 use std::process::ExitStatus;
-use tokio::process::Command;
 
 pub trait LDEModuleManager {
     fn set_window_manager(&mut self, wm_name: &str);
@@ -121,7 +121,7 @@ impl<'l> LDEModule<'l> {
             .args(["&"].iter())
             .spawn()
             .expect("File to run module");
-        match cmd.try_wait() {
+        match cmd.wait() {
             Ok(data) => println!("output : {:?}", data),
             Err(e) => println!("Error: {:?}", e),
         }
