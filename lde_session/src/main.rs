@@ -48,6 +48,8 @@ async fn main() {
     let mut mg = ModuleManager::new();
     mg.set_window_manager("kwin_x11");
     mg.startup().await;
+    std::thread::sleep(std::time::Duration::from_millis(100));
+    mg.start_autostart().await;
     std::thread::park();
     // mg.start_autostart().await;
     // std::thread::park();

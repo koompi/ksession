@@ -75,6 +75,7 @@ impl ModuleManager {
         for file in list_files {
             let content = fs::read_to_string(&file).expect("Something wrong reading file");
             if content.contains("X-LDE-Module") {
+                println!("{:?}", file);
                 match self.start_app_process(file).await {
                     Ok(()) => println!("run fine"),
                     Err(e) => println!("Error: {}", e),
