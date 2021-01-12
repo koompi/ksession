@@ -13,6 +13,8 @@ members = [
     "lde_session"
 ]
 [dependencies]
+structopt = "0.3"
+console = "0.13"
 lde_leave = {version="0.1", path="lde_leave"}
 lde_session = {version="0.1", path="lde_session"}
 lde_config_session = {version="0.1", path="lde_config_session"}
