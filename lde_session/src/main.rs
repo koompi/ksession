@@ -48,6 +48,6 @@ async fn main() {
     let mut mg = ModuleManager::new();
     mg.set_window_manager("kwin_x11");
     mg.startup().await;
-    mg.start_autostart().await;
+    let _ = tokio::join!(mg.start_autostart());
     std::thread::park();
 }
