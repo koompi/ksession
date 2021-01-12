@@ -50,8 +50,4 @@ async fn main() {
     mg.startup().await;
     mg.start_autostart().await;
     std::thread::park();
-    // mg.start_autostart().await;
-    // std::thread::park();
-    // mg.wm_started().await;
-    // data.start_process("lxqt-panel");
 }
