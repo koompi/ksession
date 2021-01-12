@@ -12,8 +12,11 @@ pub struct AutostartItem {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum FileState {
-   StateTransient,
-   StateExists,
+   StateNone,      
+   StateDeleted,   
+   StateTransient, 
+   StateModified,  
+   StateExists     
 }
 
 impl AutostartItem {
@@ -22,36 +25,14 @@ impl AutostartItem {
          system_file: None,
          system: false,
          local_file: None,
-         local_state: FileState::StateExists,
+         local_state: FileState::StateNone,
       }
    }
 
-   pub fn with_system_file(file: &PathBuf) -> Self {
-      Self {
-         system_file: Some(file.clone()),
-         system: true,
-         local_file: None,
-         local_state: FileState::StateExists,
-      }
-   }
-
-   pub fn systemfile(&self) -> Option<PathBuf> {
-      self.system_file.clone()
-   }
-
-   pub fn file(&self) -> PathBuf {
-      // if let Some(system_file) = &self.system_file {
-      //    system_file.clone()
-      // } else if let Some(local_file) = &self.local_file {
-      //    local_file.clone()
-      // } else {
-      //    PathBuf::new()
-      // }
-      if self.system {
-         self.system_file.clone().unwrap()
-      } else {
-         self.local_file.clone().unwrap()
-      }
+   pub fn with_system_file(mut self, file: &PathBuf) -> Self {
+      self.system_file = Some(file.clone());
+      self.system = true;
+      self
    }
 
    pub fn set_local_from_file(&mut self, file: &PathBuf) {
@@ -59,18 +40,77 @@ impl AutostartItem {
       self.local_state = FileState::StateExists;
    }
 
-   // !hard_code
+   pub fn systemfile(&self) -> Option<PathBuf> {
+      self.system_file.clone()
+   }
+
+   pub fn file(&self) -> PathBuf {
+      if self.is_local() {
+         self.system_file.clone().unwrap()
+      } else {
+         self.local_file.clone().unwrap()
+      }
+   }
+
+   pub fn name(&self) -> &str {
+      self.file().file_name().unwrap().to_str().unwrap()
+   }
+
+   pub fn set_file(&mut self, file: &PathBuf) {
+      let local = self.is_local();
+      if let Some(system_file) = self.system_file {
+         if self.system && local && *file == system_file {
+            self.remove_local();
+         }
+      } else {
+         if local {
+            self.local_state = FileState::StateModified;
+         } else {
+            self.local_state = FileState::StateTransient;
+         }
+         self.local_file = Some(file.clone())
+      }
+   }
+
+   pub fn commit(&self) -> bool {
+      if self.local_state == FileState::StateDeleted {
+         self.local_state = FileState::StateNone;
+         if let Some(local_file) = self.local_file {
+            match std::fs::remove_file(local_file) {
+               Ok(_) => return true,
+               Err(_) => return false,
+            }
+         }
+      } else if self.local_state == FileState::StateModified || self.local_state == FileState::StateTransient {
+         self.local_state = FileState::StateExists;
+      }
+      true
+   }
+
    pub fn remove_local(&self) -> bool {
-      false
+      if !self.is_local() {
+         return false;
+      }
+
+      self.local_state = if self.local_state == FileState::StateTransient {
+         FileState::StateNone
+      } else {
+         FileState::StateDeleted
+      };
+
+      return !self.system;
    }
 
    pub fn overrides(&self) -> bool {
       self.system && self.is_local()
    }
 
-   // !hard_code
    pub fn is_local(&self) -> bool {
-      false
+      return self.local_state != FileState::StateNone && self.local_state != FileState::StateDeleted
+   }
+
+   pub fn is_empty(&self) -> bool {
+      return !self.system && self.local_state == FileState::StateNone
    }
 
    pub fn is_transient(&self) -> bool {
@@ -84,7 +124,10 @@ impl AutostartItem {
          if let Ok(system_list) = list_of_desktop_files(config_dir) {
             system_list.iter().for_each(|file| {
                let name = file.file_stem().unwrap();
-               items.insert(name.to_str().unwrap().to_string(), AutostartItem::with_system_file(file));
+               items.insert(
+                  name.to_str().unwrap().to_string(),
+                  AutostartItem::new().with_system_file(file),
+               );
             })
          }
       });
@@ -103,7 +146,7 @@ impl AutostartItem {
             }
          })
       }
-      
+
       items
    }
 }

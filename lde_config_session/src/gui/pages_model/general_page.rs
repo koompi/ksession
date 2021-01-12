@@ -1,12 +1,14 @@
-use iced::{
-   pick_list, button, scrollable, Element, Row, PickList, Button, Text, Container, Column, Align,
-   Scrollable, Checkbox, Length, Space,
-};
-use std::fmt::{Display, Formatter, Result};
-use crate::gui::{CustomButton, CustomContainer, CustomSelect, CustomCheckbox};
 use config::Config;
-use super::auto_start::{AutostartItem, AutostartUtils};
+use std::fmt::{Display, Formatter, Result};
+use iced::{
+   button, pick_list, scrollable, Button, PickList, Scrollable, Text, Container, Column, Row, Length, Element, Checkbox,
+   Space, Align,
+};
+use crate::gui::{CustomButton, CustomCheckbox, CustomContainer, CustomSelect};
+use is_executable::IsExecutable;
+use serde_derive::{Deserialize, Serialize};
 use nfd2::Response;
+use super::auto_start::{AutostartItem, AutostartUtils};
 
 const wm_key: &'static str = "General.window_manager";
 const leave_confirm_key: &'static str = "General.leave_confirmation";
@@ -16,6 +18,8 @@ const openbox_val: &'static str = "openbox";
 
 #[derive(Debug, Clone, Default)]
 pub struct GeneralPage {
+   config: Config,
+   ls_wm: Vec<WM>,
    wm_state: pick_list::State<WM>,
    wm_val: WM,
    btn_search_state: button::State,
@@ -26,7 +30,6 @@ pub struct GeneralPage {
    btn_stop_state: button::State,
    ask_confirm_leave: bool,
    lock_screen: bool,
-   config: Config
 }
 
 #[derive(Debug, Clone)]
@@ -41,25 +44,43 @@ pub enum GeneralMsg {
 }
 
 impl GeneralPage {
-   pub fn new(config: Config) -> Self {
-      println!("{:#?}", AutostartItem::create_item_map());
+   fn restore_settings(mut self) -> Self {
+      if let Some(wm_list) = get_wm_list(true) {
+         self.ls_wm = wm_list;
+      }
+      self.wm_val = toml::from_str(self.config.get(wm_key).unwrap_or(openbox_val)).unwrap();
+      self.ask_confirm_leave = self.config.get_bool(leave_confirm_key).unwrap_or(false);
+      self.lock_screen = self.config.get_bool(lck_bef_pow_act_key).unwrap_or(true);
+      self
+   }
 
-      Self {
-         lde_mods: vec![
-            (true, "Compton (X Compositor)", ModuleStatus::Running),
-            (false, "Desktop", ModuleStatus::Idle),
-            (false, "Global Keyboard Shortcuts", ModuleStatus::Idle),
-            (true, "Notification Daemon", ModuleStatus::Running),
-            (true, "Panel", ModuleStatus::Running),
-            (true, "PolicyKit Handler", ModuleStatus::Running),
-            (false, "Power Management", ModuleStatus::Idle),
-            (true, "Runner", ModuleStatus::Running),
-         ],
-         ask_confirm_leave: config.get(leave_confirm_key).unwrap(),
-         lock_screen: true,
+   pub fn save(&mut self) {
+      let mut do_restart = false;
+      let prev_items = AutostartItem::create_item_map().iter().filter(|(_, item)| AutostartUtils::is_lde_module(item.file()));
+      if self.wm_val != toml::from_str(self.config.get(wm_key).unwrap_or(openbox_val)).unwrap() {
+         self.config.set(wm_key, toml::to_string(&self.wm_val).unwrap());
+         do_restart = true;
+      }
+
+      if self.ask_confirm_leave != self.config.get_bool(leave_confirm_key).unwrap_or(false) {
+         self.config.set(leave_confirm_key, self.ask_confirm_leave);
+         do_restart = true;
+      }
+
+      if self.lock_screen != self.config.get_bool(lck_bef_pow_act_key).unwrap_or(true) {
+         self.config.set(lck_bef_pow_act_key, self.lock_screen);
+         do_restart = true;
+      }
+   }
+}
+
+impl GeneralPage {
+   pub fn new(config: Config) -> Self {
+      let mut general_page = Self {
          config,
          ..Default::default()  
-      }
+      };
+      general_page.restore_settings()
    }
 
    pub fn update(&mut self, msg: GeneralMsg) {
@@ -68,7 +89,7 @@ impl GeneralPage {
          WMChanged(val) => self.wm_val = val,
          SearchClicked => {
             match nfd2::open_file_dialog(None, Some(std::path::Path::new("/usr/bin"))).expect("oh no") {
-               Response::Okay(file_path) => self.wm_val = WM::from(file_path.as_os_str().to_str().unwrap()),
+               Response::Okay(file_path) => self.wm_val = toml::from_str(file_path.as_os_str().to_str().unwrap()).unwrap(),
                _ => {}
             }
          },
@@ -76,7 +97,7 @@ impl GeneralPage {
             if let Some(lde_mod) = self.lde_mods.get_mut(idx) {
                self.selected_mod = Some(idx);
                lde_mod.0 = is_checked;
-               lde_mod.2 =if is_checked {
+               lde_mod.2 = if is_checked {
                   ModuleStatus::Running
                } else {
                   ModuleStatus::Idle
@@ -114,7 +135,7 @@ impl GeneralPage {
       } = self;
 
       let txt_wm_title = Text::new("Window Manager").size(14);
-      let pl_wm = PickList::new(wm_state, &WM::ALL[..], Some(*wm_val), GeneralMsg::WMChanged).width(Length::Fill).style(CustomSelect::Default);
+      let pl_wm = PickList::new(wm_state, &self.ls_wm, Some(*wm_val), GeneralMsg::WMChanged).width(Length::Fill).style(CustomSelect::Default);
       let btn_search = Button::new(btn_search_state, Text::new("  Search  ")).on_press(GeneralMsg::SearchClicked).style(CustomButton::Default);
       let wm_sec = Container::new(
          Column::new().spacing(7)
@@ -185,108 +206,45 @@ impl GeneralPage {
          .push(lde_leave_ses_sec)
       ).into()
    }
+}
 
-   pub fn restore_settings(&mut self) {
-      let known_wms: Vec<String> = get_window_manager_list(true).into_iter().map(|wm| wm.to_string()).collect();
-      self.wm_val = WM::from(self.config.get_str(wm_key).unwrap_or(openbox_val.to_string()).as_str());
-      self.ask_confirm_leave = self.config.get_bool(leave_confirm_key).unwrap_or(false);
-      self.lock_screen = self.config.get_bool(lck_bef_pow_act_key).unwrap_or(true);
-   }
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+pub struct WM {
+   #[serde(skip)] 
+   name: &'static str,
+   command: &'static str,
+   #[serde(skip)] 
+   commment: &'static str,
+   #[serde(skip)] 
+   exists: bool,
+}
 
-   pub fn save(&mut self) {
-      let mut do_restart = false;
-      let prev_items = AutostartItem::create_item_map().iter().filter(|(_, item)| AutostartUtils::is_lde_module(item.file()));
-      if self.wm_val != WM::from(self.config.get_str(wm_key).unwrap_or(openbox_val.to_string()).as_str()) {
-         let new_wm: &str = self.wm_val.into();
-         self.config.set(wm_key, new_wm);
-         do_restart = true;
+pub fn get_wm_list(available: bool) -> Option<Vec<WM>> {
+   None
+}
+
+pub fn find_program(name: &str) -> bool {
+   let abs_path = format!("/usr/bin/{}", name);
+   let path = std::path::Path::new(&abs_path);
+   if path.is_executable() {
+      true
+   } else if let Some(val) = std::env::var_os("PATH") {
+      let paths = val.to_str().unwrap().split(':');
+      for p in paths {
+         let file = format!("{}/{}", p, name);
+         if std::path::Path::new(&file).is_executable() {
+            return true;
+         }
       }
-
-      if self.ask_confirm_leave != self.config.get_bool(leave_confirm_key).unwrap_or(false) {
-         self.config.set(leave_confirm_key, self.ask_confirm_leave);
-         do_restart = true;
-      }
-
-      if self.lock_screen != self.config.get_bool(lck_bef_pow_act_key).unwrap_or(true) {
-         self.config.set(lck_bef_pow_act_key, self.lock_screen);
-         do_restart = true;
-      }
+      false
+   } else {
+      false
    }
-}
-
-// dump func
-fn get_window_manager_list(only_available: bool) -> Vec<&'static str> {
-   vec![
-      "kwin_x11",
-      "openbox"
-   ]
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum WM {
-   LdeWm,
-   KWin,
-   OpenBox,
-   I3,
-   Jwm,
-   Xfwm
-}
-
-impl From<&str> for WM {
-   fn from(s: &str) -> Self { 
-      use WM::*;
-
-      match s {
-         "kwin_x11" => KWin,
-         "openbox" => OpenBox,
-         _ => LdeWm
-      }
-   }
-}
-
-impl From<WM> for &str {
-   fn from(wm: WM) -> Self {
-      use WM::*;
-
-      match wm {
-         KWin => "kwin_x11",
-         OpenBox => "openbox",
-         _ => ""
-      }
-   }
-}
-
-impl Default for WM {
-   fn default() -> Self {
-      Self::LdeWm
-   }
-}
-
-impl WM {
-   const ALL: [WM; 6] = [
-      WM::LdeWm,
-      WM::KWin,
-      WM::OpenBox,
-      WM::I3,
-      WM::Jwm,
-      WM::Xfwm,
-   ];
 }
 
 impl Display for WM {
    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-      write!(
-         f,
-         "{}",
-         match self {
-            WM::LdeWm => "LdeWM",
-            WM::KWin => "Kwin",
-            WM::OpenBox => "Openbox",
-            WM::I3 => "i3",
-            WM::Jwm => "JWM",
-            WM::Xfwm => "XFWM",
-         }
-      )
+      write!(f, "{}", self.command)
    }
 }
 

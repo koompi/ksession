@@ -5,11 +5,12 @@ mod env_advanced;
 
 use general_page::{GeneralPage, GeneralMsg};
 use default_app_page::{DefaultAppPage, DefaultAppMsg};
-use auto_start::{AutoStartPage, AutoStartMsg};
+use auto_start::{AutostartPage, AutostartMsg};
 use env_advanced::{EnvPage, EnvMsg};
 use iced::{
    Element,
 };
+use config::Config;
 
 pub struct Pages {
    pages: Vec<Page>,
@@ -19,7 +20,7 @@ pub struct Pages {
 pub enum Page {
    General { general_page: GeneralPage },
    DefaultApp { default_app_page: DefaultAppPage },
-   AutoStart { auto_start_page: AutoStartPage },
+   AutoStart { auto_start_page: AutostartPage },
    Env { env_page: EnvPage },
 }
 
@@ -27,19 +28,20 @@ pub enum Page {
 pub enum PagesMessage {
    GeneralMessage(GeneralMsg),
    DefaultAppMessage(DefaultAppMsg),
-   AutoStartMessage(AutoStartMsg),
+   AutoStartMessage(AutostartMsg),
    EnvMessage(EnvMsg),
 }
 
 impl Pages {
-   pub fn new() -> Self {
+   pub fn new(config: &Config) -> Self {
       use Page::*;
+       
       Self {
          pages: vec![
-            General{ general_page: GeneralPage::new() },
+            General{ general_page: GeneralPage::new(config.clone()) },
             DefaultApp{ default_app_page: DefaultAppPage::new() },
-            AutoStart{ auto_start_page: AutoStartPage::new() },
-            Env{ env_page: EnvPage::new() },
+            AutoStart{ auto_start_page: AutostartPage::new() },
+            Env{ env_page: EnvPage::new(config.clone()) },
          ],
          current: 0
       }

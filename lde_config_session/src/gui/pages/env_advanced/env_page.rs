@@ -7,6 +7,12 @@ use serde::{Serialize, Deserialize};
 use serde_json::Value;
 use super::env_entry_page::{EnvEntryPage, EnvEntryMsg};
 use crate::gui::CustomButton;
+use config::Config;
+use freedesktop_entry_parser::parse_entry;
+use std::collections::HashMap;
+
+const browser_key: &'static str = "Environment.BROWSER";
+const term_key: &'static str = "Environment.TERM";
 
 #[derive(Debug, Clone, Default)]
 pub struct EnvPage {
@@ -17,6 +23,7 @@ pub struct EnvPage {
    btn_delete_state: button::State,
    env_entry_page: EnvEntryPage,
    is_adding: bool,
+   config: Config
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -33,14 +40,15 @@ pub enum EnvMsg {
 }
 
 impl EnvPage {
-   pub fn new() -> Self {
+   pub fn new(config: Config) -> Self {
       Self {
          ls_env: vec![
             Env::new("BROWSER", "firefox"),
             Env::new("GTK_CSD", "0"),
             Env::new("GTK_OVER", "0"),
-            Env::new("term", "alacritty"),
+            Env::new("TERM", "alacritty"),
          ],
+         config,
          ..Self::default()
       }
    }
@@ -85,6 +93,7 @@ impl EnvPage {
          btn_delete_state,
          env_entry_page,
          is_adding,
+         ..
       } = self;
 
       if *is_adding {
@@ -111,6 +120,62 @@ impl EnvPage {
                .push(btn_group)
             )
          ).into()
+      }
+   }
+
+   pub fn restore_settings(&mut self) {
+      let mut value = String::new();
+      self.ls_env.clear();
+      match parse_entry("lde_config_session/config/session.toml") {
+         Ok(entry) => {
+            entry.section("Environment").attrs().for_each(|attr| {
+               value = self.config.get_str(attr.name).unwrap_or(String::new());
+               self.ls_env.insert(0, Env::new(attr.name, value.as_str()));
+               // emit envVarChanged(i, value);
+            });
+         },
+         Err(err) => println!("Error: {}", err)
+      }
+
+      if let Err(_) = self.config.get_str(browser_key) {
+         // emit envVarChanged(QL1S("BROWSER"), QString());
+      }
+
+      if let Err(_) = self.config.get_str(term_key) {
+         // emit envVarChanged(QL1S("TERM"), QString());
+      }
+   }
+
+   pub fn save(&mut self) {
+      let mut do_restart = false;
+      let mut old_settings: HashMap<String, String> = HashMap::new();
+      match parse_entry("lde_config_session/config/session.toml") {
+         Ok(entry) => {
+            entry.section("Environment").attrs().for_each(|attr| {
+               let value = self.config.get_str(attr.name).unwrap_or(String::new());
+               old_settings.insert(attr.name.to_string(), value);
+            });
+         },
+         Err(err) => println!("Error: {}", err)
+      }
+      let n_items = self.ls_env.capacity();
+      for i in 0..n_items {
+         let item = self.ls_env.get(i).unwrap();
+         
+         if let Some(old_value) = old_settings.get(&item.name) {
+            if *old_value != item.val {
+               do_restart = true;
+            }
+         }
+         self.config.set(item.name.as_str(), item.val.as_str());
+      }
+
+      if old_settings.capacity() != n_items {
+         do_restart = true;
+      }
+
+      if do_restart {
+         // emit needRestart();
       }
    }
 }

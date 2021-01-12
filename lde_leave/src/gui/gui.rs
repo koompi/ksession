@@ -1,6 +1,5 @@
 use super::{
     action_button::{ActionButton, ActionMsg, ActionType}, constants::IMAGE_PATH, styles::CustomButton,
-
 };
 use crate::backend::LdePower; 
 use num_traits::FromPrimitive;

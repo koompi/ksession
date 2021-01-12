@@ -1,4 +1,3 @@
-mod cli;
 mod gui;
 
 use gui::LdeSessionManager;

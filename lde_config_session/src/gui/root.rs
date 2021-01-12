@@ -4,8 +4,10 @@ use super::constants::{IMAGE_PATH};
 use super::styles::{CustomButton, CustomContainer};
 use iced::{
    button, executor, scrollable, window, Application, Button, Command, Container, Element, Length, Row, 
-   Scrollable, Settings, Text, Column, 
+   Scrollable, Settings, Text, Column,
 };
+use crate::gui::load_config;
+use config::Config;
 
 pub struct LdeSessionManager {
    tabs: Vec<Tab>,
@@ -13,6 +15,7 @@ pub struct LdeSessionManager {
    pages: Pages,
    btn_default_state: button::State,
    sidebar_scroll: scrollable::State,
+   is_restart: bool,
 }
 
 impl LdeSessionManager {
@@ -24,6 +27,7 @@ impl LdeSessionManager {
       // let rgba = image.into_raw();
 
       LdeSessionManager::run(Settings {
+         flags: load_config(None),
          default_text_size: 13,
          window: window::Settings {
             min_size: Some((650, 500)),
@@ -32,27 +36,38 @@ impl LdeSessionManager {
          },
          ..Settings::default()
       }).expect("running LDE Session Manager GUI");
+
+      println!()
+   }
+
+   pub fn set_restart(&mut self) {
+      self.is_restart = true;
+   }
+
+   pub fn clear_restart(&mut self) {
+      self.is_restart = false;
    }
 }
 
-impl Default for LdeSessionManager {
-   fn default() -> Self {
-      let tabs = vec![
-         Tab::new(format!("{}/general.svg", IMAGE_PATH, ), "General Settings"),
-         Tab::new(format!("{}/default_app.svg", IMAGE_PATH, ), "Default Applications"),
-         Tab::new(format!("{}/startup.svg", IMAGE_PATH, ), "Autostart Applications"),
-         Tab::new(format!("{}/env.svg", IMAGE_PATH, ), "Environment Variable"),
-      ];
+// impl Default for LdeSessionManager {
+//    fn default() -> Self {
+//       let tabs = vec![
+//          Tab::new(format!("{}/general.svg", IMAGE_PATH, ), "General Settings"),
+//          Tab::new(format!("{}/default_app.svg", IMAGE_PATH, ), "Default Applications"),
+//          Tab::new(format!("{}/startup.svg", IMAGE_PATH, ), "Autostart Applications"),
+//          Tab::new(format!("{}/env.svg", IMAGE_PATH, ), "Environment Variable"),
+//       ];
 
-      Self {
-         tabs,
-         selected_tab: 0,
-         pages: Pages::new(),
-         btn_default_state: button::State::new(),
-         sidebar_scroll: scrollable::State::new(),
-      }
-   }
-}
+//       Self {
+//          tabs,
+//          selected_tab: 0,
+//          pages: Pages::new(),
+//          btn_default_state: button::State::new(),
+//          sidebar_scroll: scrollable::State::new(),
+//          is_restart: false,
+//       }
+//    }
+// }
 
 #[derive(Debug, Clone)]
 pub enum LdeSessionManagerMsg {
@@ -64,11 +79,27 @@ pub enum LdeSessionManagerMsg {
 impl Application for LdeSessionManager {
    type Executor = executor::Default;
    type Message = LdeSessionManagerMsg;
-   type Flags = ();
+   type Flags = Config;
 
-   fn new(_flags: ()) -> (Self, Command<Self::Message>) {
+   fn new(config: Config) -> (Self, Command<Self::Message>) {
+      let tabs = vec![
+         Tab::new(format!("{}/general.svg", IMAGE_PATH, ), "General Settings"),
+         Tab::new(format!("{}/default_app.svg", IMAGE_PATH, ), "Default Applications"),
+         Tab::new(format!("{}/startup.svg", IMAGE_PATH, ), "Autostart Applications"),
+         Tab::new(format!("{}/env.svg", IMAGE_PATH, ), "Environment Variable"),
+      ];
+
+      let lde_session_manager = LdeSessionManager {
+         tabs,
+         selected_tab: 0,
+         pages: Pages::new(&config),
+         btn_default_state: button::State::new(),
+         sidebar_scroll: scrollable::State::new(),
+         is_restart: false,
+      };
+
       (
-         Self::default(),
+         lde_session_manager,
          Command::none()
       )
    }
@@ -90,10 +121,10 @@ impl Application for LdeSessionManager {
             self.pages.update(page_msg);
          },
          Self::Message::DefaultClicked => {
-            let current_tab = self.selected_tab;
-            *self = Self::default();
-            self.selected_tab = current_tab;
-            self.pages.set_current(self.selected_tab);
+            // let current_tab = self.selected_tab;
+            // *self = Self::default();
+            // self.selected_tab = current_tab;
+            // self.pages.set_current(self.selected_tab);
          }
       }
 
@@ -107,6 +138,7 @@ impl Application for LdeSessionManager {
          pages,
          btn_default_state,
          sidebar_scroll,
+         ..
       } = self;
 
       let sidebar = tabs.iter_mut().enumerate().fold(
