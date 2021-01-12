@@ -1,6 +1,5 @@
 use super::{
     action_button::{ActionButton, ActionMsg, ActionType}, constants::IMAGE_PATH, styles::CustomButton,
-
 };
 use crate::backend::LdePower; 
 use num_traits::FromPrimitive;
@@ -41,7 +40,7 @@ impl LdeLeave {
             ..Settings::default()
         };
 
-        LdeLeave::run(settings).expect("running LDE Leave GUI");
+        LdeLeave::run(settings).expect("running LDE Leave Session GUI");
     }
 }
 
@@ -74,7 +73,7 @@ impl Application for LdeLeave {
     }
 
     fn title(&self) -> String { 
-        String::from("LDE Leave")   
+        String::from("LDE Leave Session")   
     }
 
     fn subscription(&self) -> Subscription<Message> {
