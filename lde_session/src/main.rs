@@ -48,6 +48,8 @@ async fn main() {
     let mut mg = ModuleManager::new();
     mg.set_window_manager("kwin_x11");
     mg.startup().await;
-    let _ = tokio::join!(mg.start_autostart());
+    let _ = tokio::join!(mg.startup());
+    mg.start_autostart().await;
+    mg.start_process("lxqt-panel");
     std::thread::park();
 }

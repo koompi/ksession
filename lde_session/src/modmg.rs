@@ -29,7 +29,19 @@ impl LDEModuleManager for ModuleManager {
     fn set_window_manager(&mut self, wm_name: &str) {
         self.window_manager = wm_name.to_string();
     }
-    fn start_process(&self, proc_name: &str) {}
+    fn start_process(&self, proc_name: &str) {
+        let mut child = Command::new(proc_name)
+            .spawn()
+            .expect(&format!("Failed to start {} process", proc_name));
+        tokio::spawn(async move {
+            let status = child
+                .wait()
+                .await
+                .expect("child process encountered an error");
+
+            println!("child status was: {}", status);
+        });
+    }
     fn stop_process(&self, proc_name: &str) {}
     fn list_modlues(&mut self) -> Vec<String> {
         Vec::<String>::new()
@@ -52,6 +64,7 @@ impl ModuleManager {
             return self;
         } else {
             let mut child = Command::new(&self.window_manager)
+                .arg("&")
                 .spawn()
                 .expect("Failed to start window manager");
             tokio::spawn(async move {
@@ -63,6 +76,7 @@ impl ModuleManager {
                 println!("child status was: {}", status);
             });
         }
+        std::thread::sleep(std::time::Duration::from_millis(100));
         self
     }
     pub async fn wm_started(&mut self) {
@@ -91,7 +105,7 @@ impl ModuleManager {
             .attr("Exec")
             .expect("Attribute doesn't exist");
         println!(" Executable: {}", binary);
-        let mut child = Command::new(binary).spawn().expect("running");
+        let mut child = Command::new(binary).arg("&").spawn().expect("running");
         tokio::spawn(async move {
             let status = child
                 .wait()
@@ -100,12 +114,6 @@ impl ModuleManager {
 
             println!("child status was: {}", status);
         });
-        // match output.wait() {
-        //     Ok(data) => {
-        //         println!("Status: {:?}", data);
-        //     }
-        //     Err(e) => println!("Error: {}", e),
-        // }
         Ok(())
     }
     fn start_config_update(&mut self) {}
