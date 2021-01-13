@@ -1,6 +1,6 @@
 
 use structopt::{StructOpt, clap};
-use crate::backend::{Action, LdePower, print_dbus_msg};
+use system_api::{PowerManager, print_dbus_msg};
 
 /// Easily triggering leave session actions: logout, reboot, shutdown, hibernate, and lock screen
 #[derive(StructOpt, Debug)]
@@ -37,42 +37,42 @@ pub fn get_opts() -> Result<LeaveOpts, clap::Error> {
 
 pub fn validate_opts_or_exit(
     opts_result: Result<LeaveOpts, clap::Error>,
-    power_manager: &LdePower,
+    power_manager: &PowerManager,
 ) -> bool {
     let mut flag = true;
 
     match opts_result {
         Ok(opt) => {
             if opt.logout {
-                if let Err(err) = power_manager.do_action(Action::PowerLogout) {
+                if let Err(err) = power_manager.logout() {
                     print_dbus_msg(err);
                 }
                 flag = false;
             }
         
             if opt.suspend {
-                if let Err(err) = power_manager.do_action(Action::PowerSuspend) {
+                if let Err(err) = power_manager.suspend() {
                     print_dbus_msg(err);
                 }
                 flag = false;
             }
         
             if opt.hibernate {
-                if let Err(err) = power_manager.do_action(Action::PowerHibernate) {
+                if let Err(err) = power_manager.hibernate() {
                     print_dbus_msg(err);
                 }
                 flag = false;
             }
         
             if opt.shutdown {
-                if let Err(err) = power_manager.do_action(Action::PowerShutdown) {
+                if let Err(err) = power_manager.shutdown() {
                     print_dbus_msg(err);
                 }
                 flag = false;
             }
         
             if opt.reboot {
-                if let Err(err) = power_manager.do_action(Action::PowerReboot) {
+                if let Err(err) = power_manager.reboot() {
                     print_dbus_msg(err);
                 }
                 flag = false;

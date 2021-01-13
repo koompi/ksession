@@ -1,7 +1,7 @@
 use super::{
     action_button::{ActionButton, ActionMsg, ActionType}, constants::IMAGE_PATH, styles::CustomButton,
 };
-use crate::backend::LdePower; 
+use system_api::PowerManager;
 use num_traits::FromPrimitive;
 use std::path::PathBuf;
 use std::ops::SubAssign;
@@ -12,7 +12,7 @@ use iced::{
 };
 
 pub struct LdeLeave {
-    power_manager: LdePower,
+    power_manager: PowerManager,
     userprofile: PathBuf,
     username: &'static str,
     action_buttons: Vec<ActionButton>,
@@ -32,7 +32,7 @@ pub enum Message {
 }
 
 impl LdeLeave {
-    pub fn init(power_manager: LdePower) {
+    pub fn init(power_manager: PowerManager) {
         let settings = Settings {
             antialiasing: true,
             default_text_size: 13,
@@ -47,9 +47,9 @@ impl LdeLeave {
 impl Application for LdeLeave {
     type Executor = iced::executor::Default;
     type Message = Message;
-    type Flags = LdePower;
+    type Flags = PowerManager;
 
-    fn new(power_manager: LdePower) -> (Self, Command<Message>) {
+    fn new(power_manager: PowerManager) -> (Self, Command<Message>) {
         (
             Self {
                 power_manager,
@@ -195,10 +195,6 @@ impl Application for LdeLeave {
     fn mode(&self) -> window::Mode {
         window::Mode::Fullscreen
     } 
-
-    fn scale_factor(&self) -> f64 {
-        0.85
-    }
 
     // fn background_color(&self) -> Color {
     //     Color::from_rgba8(21, 21, 21, 0.7)

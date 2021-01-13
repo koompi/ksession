@@ -10,5 +10,6 @@ edition = "2018"
 structopt = "0.3"
 dbus = "0.9"
 iced = { version = "0.2", features = ["debug", "svg", "tokio"] }
+system-api = { git = "https://github.com/leang27/system-api", branch = "main" }
 num-derive = "0.3"
 num-traits = "0.2"
