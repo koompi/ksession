@@ -32,7 +32,7 @@ impl LDEModuleManager for ModuleManager {
     fn start_process(&self, proc_name: &str) {
         let mut child = Command::new(proc_name)
             .spawn()
-            .expect(&format!("Failed to start {} process", proc_name));
+            .expect("Failed to kick of auto start application");
         tokio::spawn(async move {
             let status = child
                 .wait()
