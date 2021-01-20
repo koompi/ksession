@@ -62,4 +62,4 @@ export QT_QPA_PLATFORMTHEME=LDE
 export XDG_CURRENT_DESKTOP="LDE"
 
 # Start the LDE session
-exec lde_session
+exec k_session

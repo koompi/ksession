@@ -2,6 +2,6 @@
 Name=LDE SESSION
 Type=Application
 Exec=startkmp.sh
-TryExec=lde_session
+TryExec=k_session
 DesktopNames=LDE
 
