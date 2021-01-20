@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use crate::modmg::{LDEModuleManager, ModuleManager};
+use crate::modmg::ModuleManager;
 #[derive(Default)]
 pub struct SessionApplication {
     modmg: ModuleManager,

@@ -45,6 +45,7 @@ async fn main() {
         };
         println!("Status: {}", status);
     }
+
     let mut session = SessionApplication::new();
     session.startup();
     session.exec();

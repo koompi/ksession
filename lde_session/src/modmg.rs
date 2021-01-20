@@ -5,14 +5,6 @@ use std::fs;
 use std::path::PathBuf;
 use std::process::ExitStatus;
 use tokio::process::Command;
-pub trait LDEModuleManager {
-    fn set_window_manager(&mut self, wm_name: &str);
-    fn start_process(&self, proc_name: &str);
-    fn stop_process(&self, proc_name: &str);
-    fn list_modlues(&mut self) -> Vec<String>;
-    fn startup(&mut self);
-    fn logout(&self, can_exit: bool);
-}
 #[derive(Default)]
 pub struct ModuleManager {
     wm_started: bool,
@@ -21,39 +13,34 @@ pub struct ModuleManager {
     is_crashed: bool,
     // brief Window Manager command
     window_manager: String,
+    list_modules: Vec<String>,
 }
 
-impl LDEModuleManager for ModuleManager {
-    fn set_window_manager(&mut self, wm_name: &str) {
+impl ModuleManager {
+    pub fn set_window_manager(&mut self, wm_name: &str) {
         self.window_manager = wm_name.to_string();
     }
-    fn start_process(&self, proc_name: &str) {
+    pub fn start_process(&mut self, proc_name: &str) {
+        self.list_modules.push(proc_name.to_string());
         match Command::new(proc_name).arg("&").spawn() {
             Ok(mut child) => {
                 tokio::spawn(async move {
-                    let status = child
-                        .wait()
-                        .await
-                        .expect("child process encountered an error");
-
-                    println!("child status was: {}", status);
+                    let status = child.wait().await;
                 });
             }
             Err(e) => println!("error: {:?}", e),
         }
     }
-    fn stop_process(&self, proc_name: &str) {}
-    fn list_modlues(&mut self) -> Vec<String> {
-        Vec::<String>::new()
+    pub fn stop_process(&self, proc_name: &str) {}
+    pub fn modules(&self) -> &Vec<String> {
+        &self.list_modules
     }
-    fn startup(&mut self) {
+    pub fn startup(&mut self) {
         self.start_wm();
         self.start_autostart();
     }
     fn logout(&self, can_exit: bool) {}
-}
 
-impl ModuleManager {
     pub fn new() -> Self {
         Self {
             ..Default::default()
@@ -64,9 +51,16 @@ impl ModuleManager {
         if !get_wm().is_empty() {
             self.wm_started = true;
         } else {
-            self.start_process(&self.window_manager);
+            match Command::new(&self.window_manager).spawn() {
+                Ok(mut child) => match child.try_wait() {
+                    Ok(status) => {
+                        println!("status: {:?} ", Some(status));
+                    }
+                    Err(e) => println!("data: {}", e),
+                },
+                Err(e) => {}
+            }
         }
-        std::thread::sleep(std::time::Duration::from_millis(100));
     }
     pub fn wm_started(&mut self) {
         println!("window manager: {}", get_wm());
@@ -99,6 +93,7 @@ impl ModuleManager {
     fn start_config_update(&mut self) {}
     fn restart_module(&self, exit_status: ExitStatus) {}
 }
+
 pub fn get_wm() -> String {
     let st = wmctrl::show_wm_information();
     if ExitStatus::success(&st.status) {
