@@ -3,7 +3,7 @@ mod gui;
 
 use cli::{get_opts, validate_opts_or_exit};
 use gui::LdeLeave;
-use system_api::PowerManager;
+use session_core::leave::PowerManager;
 
 fn main() {
     let power_manager = PowerManager::new();
