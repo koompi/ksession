@@ -58,6 +58,7 @@ impl ModuleManager {
             ..Default::default()
         }
     }
+
     async fn start_wm(&mut self) -> &mut Self {
         if !get_wm().is_empty() {
             self.wm_started = true;
