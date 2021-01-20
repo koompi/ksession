@@ -18,7 +18,6 @@ impl SessionApplication {
     pub fn startup(&mut self) {
         self.set_windowmanager("kwin_x11");
         self.modmg.startup();
-        self.modmg.start_autostart();
     }
     pub fn exec(&self) {
         std::thread::park();

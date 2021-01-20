@@ -28,7 +28,7 @@ impl LDEModuleManager for ModuleManager {
         self.window_manager = wm_name.to_string();
     }
     fn start_process(&self, proc_name: &str) {
-        match Command::new(proc_name).spawn() {
+        match Command::new(proc_name).arg("&").spawn() {
             Ok(mut child) => {
                 tokio::spawn(async move {
                     let status = child
@@ -48,6 +48,7 @@ impl LDEModuleManager for ModuleManager {
     }
     fn startup(&mut self) {
         self.start_wm();
+        self.start_autostart();
     }
     fn logout(&self, can_exit: bool) {}
 }
