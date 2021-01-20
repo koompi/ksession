@@ -1,7 +1,7 @@
 use super::{
     action_button::{ActionButton, ActionMsg, ActionType}, constants::IMAGE_PATH, styles::CustomButton,
 };
-use system_api::PowerManager;
+use session_core::leave::PowerManager;
 use num_traits::FromPrimitive;
 use std::path::PathBuf;
 use std::ops::SubAssign;

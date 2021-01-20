@@ -1,6 +1,6 @@
 
 use structopt::{StructOpt, clap};
-use system_api::{PowerManager, print_dbus_msg};
+use session_core::{leave::PowerManager, helpers::print_dbus_msg};
 
 /// Easily triggering leave session actions: logout, reboot, shutdown, hibernate, and lock screen
 #[derive(StructOpt, Debug)]
