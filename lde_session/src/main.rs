@@ -46,6 +46,6 @@ async fn main() {
         println!("Status: {}", status);
     }
     let mut session = SessionApplication::new();
-    session.startup().await;
-    std::thread::park();
+    session.startup();
+    session.exec();
 }

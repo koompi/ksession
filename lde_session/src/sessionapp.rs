@@ -15,10 +15,13 @@ impl SessionApplication {
         self.modmg.set_window_manager(name);
     }
     fn set_config(&self) {}
-    pub async fn startup(&mut self) {
+    pub fn startup(&mut self) {
         self.set_windowmanager("kwin_x11");
         self.modmg.startup();
-        self.modmg.start_autostart().await;
+        self.modmg.start_autostart();
+    }
+    pub fn exec(&self) {
+        std::thread::park();
     }
 
     fn load_enviromentsettings(&mut self) {}

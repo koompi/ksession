@@ -70,20 +70,17 @@ impl ModuleManager {
     pub fn wm_started(&mut self) {
         println!("window manager: {}", get_wm());
     }
-    pub async fn start_autostart(&mut self) {
+    pub fn start_autostart(&mut self) {
         let list_files = desktop_files();
 
         for file in list_files {
             let content = fs::read_to_string(&file).expect("Something wrong reading file");
             if content.contains("X-LDE-Module") {
-                match self.start_app_process(file).await {
-                    Ok(()) => println!("module started"),
-                    Err(e) => println!("Error: {}", e),
-                }
+                self.start_app_process(file);
             }
         }
     }
-    async fn start_app_process(&mut self, file: PathBuf) -> Result<(), Box<dyn std::error::Error>> {
+    fn start_app_process(&mut self, file: PathBuf) {
         match freedesktop_entry_parser::parse_entry(file) {
             Ok(entry) => match entry.section("Desktop Entry").attr("Exec") {
                 Some(binary) => {
@@ -97,7 +94,6 @@ impl ModuleManager {
                 eprintln!("failed to parse desktop file: ")
             }
         }
-        Ok(())
     }
     fn start_config_update(&mut self) {}
     fn restart_module(&self, exit_status: ExitStatus) {}
