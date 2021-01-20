@@ -1,5 +1,5 @@
 [package]
-name = "lde_config_session"
+name = "k_leave"
 version = "0.1.0"
 authors = ["cambodiacoder <maveasnalearntosolve@gmail>"]
 edition = "2018"

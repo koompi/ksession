@@ -82,9 +82,9 @@ dependencies = [
 
 [[package]]
 name = "console"
-version = "0.13.0"
+version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a50aab2529019abfabfa93f1e6c41ef392f91fbf179b347a7e96abb524884a08"
+checksum = "7cc80946b3480f421c2f17ed1cb841753a371c7c5104f51d507e13f532c856aa"
 dependencies = [
  "encode_unicode",
  "lazy_static",
@@ -93,7 +93,6 @@ dependencies = [
  "terminal_size",
  "unicode-width",
  "winapi",
- "winapi-util",
 ]
 
 [[package]]
@@ -151,40 +150,23 @@ dependencies = [
 
 [[package]]
 name = "is_executable"
-version = "0.1.2"
+version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "302d553b8abc8187beb7d663e34c065ac4570b273bc9511a50e940e99409c577"
+checksum = "1426a051d4e6edd01995e55e2cb58eef936d773093b7e6ed1a2109fca474906d"
 dependencies = [
  "winapi",
 ]
 
 [[package]]
-name = "ksession"
-version = "0.1.0"
-dependencies = [
- "console",
- "lde_config_session",
- "lde_leave",
- "lde_session",
- "structopt",
-]
-
-[[package]]
-name = "lazy_static"
-version = "1.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
-
-[[package]]
-name = "lde_config_session"
+name = "k_config_session"
 version = "0.1.0"
 
 [[package]]
-name = "lde_leave"
+name = "k_leave"
 version = "0.1.0"
 
 [[package]]
-name = "lde_session"
+name = "k_session"
 version = "0.1.0"
 dependencies = [
  "clap",
@@ -195,6 +177,23 @@ dependencies = [
  "wmctrl",
  "xdg",
 ]
+
+[[package]]
+name = "ksession"
+version = "0.1.0"
+dependencies = [
+ "console",
+ "k_config_session",
+ "k_leave",
+ "k_session",
+ "structopt",
+]
+
+[[package]]
+name = "lazy_static"
+version = "1.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "lexical-core"
@@ -619,15 +618,6 @@ name = "winapi-i686-pc-windows-gnu"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ac3b87c63620426dd9b991e5ce0329eff545bccbbb34f3be09ff6fb6ab51b7b6"
-
-[[package]]
-name = "winapi-util"
-version = "0.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "70ec6ce85bb158151cae5e5c87f95a8e97d2c0c4b001223f33a334e3ce5de178"
-dependencies = [
- "winapi",
-]
 
 [[package]]
 name = "winapi-x86_64-pc-windows-gnu"

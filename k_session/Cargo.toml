@@ -1,5 +1,5 @@
 [package]
-name = "lde_session"
+name = "k_session"
 version = "0.1.0"
 authors = ["cambodiacoder <maveasnalearntosolve@gmail>"]
 edition = "2018"
@@ -13,7 +13,7 @@ clap = "2.33.3"
 # nix = "0.19"
 # dbus-tokio = "0.6.0"
 dbus = "0.9.0"
-is_executable = "0.1.2"
+is_executable = "1.0.0"
 wmctrl = "*"
 xdg = "2.2.0"
 # toml = "0.5.8"
