@@ -1,7 +1,6 @@
 [Desktop Entry]
 Name=Koompi-Session
 Type=Application
-Exec=startkmp.sh
-TryExec=lde_session
-DesktopNames=KD
+Exec=k_session
+TryExec=k_session
 
