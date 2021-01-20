@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Koompi-Session
+Type=Application
+Exec=k_session
+TryExec=k_session
+

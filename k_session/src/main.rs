@@ -4,7 +4,7 @@ mod sessionapp;
 mod sm_xdg;
 mod wmmanager;
 use clap::{App, Arg};
-use modmg::{LDEModuleManager, ModuleManager};
+use sessionapp::SessionApplication;
 #[tokio::main]
 async fn main() {
     let matches = App::new("LDE SESSION")
@@ -45,9 +45,8 @@ async fn main() {
         };
         println!("Status: {}", status);
     }
-    let mut mg = ModuleManager::new();
-    mg.set_window_manager("kwin_x11");
-    mg.startup().await;
-    mg.start_autostart().await;
-    std::thread::park();
+
+    let mut session = SessionApplication::new();
+    session.startup();
+    session.exec();
 }
